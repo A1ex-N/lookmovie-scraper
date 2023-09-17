@@ -1,5 +1,4 @@
 import sqlite3
-import asyncio
 from typing import Coroutine, Any
 
 import httpx
@@ -14,13 +13,12 @@ class Scraper:
     current_page: int = 0
     home_page_url: str = "https://www.lookmovie2.to/"
     base_search_url: str = "https://www.lookmovie2.to/movies/search/page/{page}?q="
-    # session: httpx.AsyncClient
+    session: httpx.Client
     start_page: int = 1
     end_page: int = 0  # 2564
     start_time = datetime
     processed_pages: int = 0
     movie_list_node: Node
-    tasks: list[Coroutine[Any, Any, None]] = []
     movie_list: list[MovieInfo] = []
     movie_list_tuple: list[
         tuple[str, str | None, str | None, str | None, str | None, int]
@@ -38,10 +36,10 @@ class Scraper:
         self.database_name = database_name
         self.database_connection = sqlite3.connect(self.database_name)
         self.cursor = self.database_connection.cursor()
-        # self.session = httpx.AsyncClient()
+        self.session = httpx.Client()
 
-    async def _get_home_page(self, client: httpx.AsyncClient):
-        return await client.get(self.home_page_url)
+    def _get_home_page(self):
+        return self.session.get(self.home_page_url)
 
     def start_scraping_test(self):
         html = open("search_page.html").read()
@@ -51,21 +49,19 @@ class Scraper:
         # pprint(self.movie_list)
         self.dump_scrape_status()
 
-    async def start_scraping(self):
+    def start_scraping(self):
         self.start_time = datetime.now()
-        async with httpx.AsyncClient() as client:
-            await self._get_home_page(client)
-            for page_num in range(self.start_page, self.end_page + 1):
-                self.tasks.append(self.get_episode(client, page_num))
-            await asyncio.gather(*self.tasks)
+        self._get_home_page()
+        for page_num in range(self.start_page, self.end_page + 1):
+            self.get_episode(page_num)
         self.dump_scrape_status()
 
-    async def get_episode(self, client: httpx.AsyncClient, page_num: int):
+    def get_episode(self, page_num: int):
         self.current_page = page_num
         current_page_url = self.base_search_url.format(page=page_num)
         pprint(f"fetching {current_page_url}")
         try:
-            current_page_content = await client.get(current_page_url)
+            current_page_content = self.session.get(current_page_url)
             pprint(f"status code: {current_page_content.status_code}")
             self.get_movie_list_node(current_page_content.content)
             for movie_node in self.movie_list_node.iter():
@@ -98,12 +94,12 @@ class Scraper:
         return self.movie_list_node
 
 
-async def main():
+def main():
     # scraper = Scraper("test_movies.db")
     # scraper.start_scraping_test()
-    scraper = Scraper("movies.db", 131, 199)
-    await scraper.start_scraping()
+    scraper = Scraper("movies.db", 201, 300)
+    scraper.start_scraping()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
