@@ -1,0 +1,7 @@
+.idea/
+__pycache__/
+movies.db
+num_pages_scraped.txt
+search_page.html
+search_page_files/
+test_movies.db
