@@ -1,10 +1,10 @@
 import sqlite3
 
+import logging
 import httpx
 
 from search_result import SearchResult
 from selectolax.parser import HTMLParser, Node
-from pprint import pprint
 from datetime import datetime
 from search_types import SearchType
 
@@ -56,7 +56,6 @@ class Scraper:
         self.get_movie_list_node(html)
         for movie_node in self.movie_list_node.iter():
             self.movie_list.append(SearchResult(movie_node, 0))
-        # pprint(self.movie_list)
         self.dump_scrape_status()
 
     def start_scraping(self):
@@ -71,17 +70,18 @@ class Scraper:
         current_page_url = self.base_search_url.format(
             search_type=self.search_type.value, page=page_num
         )
-        pprint(f"fetching {current_page_url}")
         try:
             current_page_content = self.session.get(current_page_url)
-            pprint(f"status code: {current_page_content.status_code}")
             self.get_movie_list_node(current_page_content.content)
             for movie_node in self.movie_list_node.iter():
                 self.movie_list.append(SearchResult(movie_node, self.current_page))
             self.processed_pages += 1
         except Exception as e:
-            print("Encountered exception ", e)
-            print(f"Dumping scraped information to {self.database_name} and exiting")
+            logging.error("Encountered exception ", e)
+            logging.log(
+                logging.INFO,
+                f"Dumping scraped information to {self.database_name} and exiting",
+            )
             self.dump_scrape_status()
             exit(1)
 
@@ -96,12 +96,12 @@ class Scraper:
         self.database_connection.close()
         with open("num_pages_scraped.txt", "w") as f:
             f.write(str(self.current_page))
-        print(
+        logging.log(
+            logging.INFO,
             f"scraped {len(self.movie_list)} movies from {self.processed_pages} pages in "
-            + f"{datetime.now() - self.start_time}"
+            + f"{datetime.now() - self.start_time}",
         )
-        print(f"Dumped movie info to '{self.database_name}'")
-        print("dumped number of scraped pages to num_pages_scraped.txt")
+        logging.log(logging.INFO, f"Dumped movie info to '{self.database_name}'")
 
     def get_movie_list_node(self, html: str | bytes) -> Node:
         tree = HTMLParser(html)
@@ -110,9 +110,12 @@ class Scraper:
 
 
 def main():
-    # scraper = Scraper("test_movies.db")
-    # scraper.start_scraping_test()
-    scraper = Scraper("tv_series.db", SearchType.SERIES, 1, 473)
+    logging.basicConfig(
+        handlers=[logging.FileHandler("scrape.log"), logging.StreamHandler()],
+        format="%(levelname)s [%(asctime)s] %(name)s - %(message)s",
+        level=logging.INFO,
+    )
+    scraper = Scraper("test_series.db", SearchType.SERIES, 1, 2)
     scraper.start_scraping()
 
 
