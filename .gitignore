@@ -3,6 +3,7 @@ __pycache__/
 movies.db.bak
 num_pages_scraped.txt
 search_page.html
+scrape.log
 search_page_files/
 test_movies.db
 test_series.db
