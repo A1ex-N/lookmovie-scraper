@@ -5,7 +5,7 @@ import calendar
 
 
 @dataclass
-class MovieInfo:
+class SearchResult:
     title: str
     year: str | None
     rating: str | None
