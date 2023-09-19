@@ -1,3 +1,5 @@
+This repo already contains complete database files in the /database folder, but if you want to run the code yourself continue reading 
+
 you can run it by doing `python scraper.py` or if you wanted to use it in your own code do it like so
 
 initialize Scraper with the `database_name`, `search_type`, `start_page` and `end_page` (inclusive)
