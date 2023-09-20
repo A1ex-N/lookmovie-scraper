@@ -1,5 +1,3 @@
-import sqlite3
-
 import logging
 import httpx
 
@@ -7,11 +5,11 @@ from search_result import SearchResult
 from selectolax.parser import HTMLParser, Node
 from datetime import datetime
 from search_types import SearchType
+from database import Database
 
 
 class Scraper:
     current_page: int = 0
-    home_page_url: str = "https://www.lookmovie2.to/"
     base_search_url: str = (
         "https://www.lookmovie2.to/{search_type}/search/page/{page}?q="
     )
@@ -21,21 +19,9 @@ class Scraper:
     start_time = datetime
     processed_pages: int = 0
     movie_list_node: Node
-    movie_list: list[SearchResult] = []
     search_type: SearchType
-    movie_list_tuple: list[
-        tuple[str, str | None, str | None, str | None, str | None, int]
-    ] = []
-    movie_insert_query: str = (
-        "INSERT INTO movies (title, year, rating, poster_url, page_url, search_page_num) VALUES "
-        "(?, ?, ?, ?, ?, ?)"
-    )
-    series_insert_query: str = (
-        "INSERT INTO tv_series (title, year, rating, poster_url, page_url, search_page_num) VALUES "
-        "(?, ?, ?, ?, ?, ?)"
-    )
-    database_connection: sqlite3.Connection
-    database_name: str = "movies.db"
+    movie_list: list[tuple[SearchResult]] = []
+    database: Database
 
     def __init__(
         self, database_name, search_type: SearchType, start_page=1, end_page=0
@@ -44,23 +30,15 @@ class Scraper:
         self.end_page = end_page
         self.search_type = search_type
         self.database_name = database_name
-        self.database_connection = sqlite3.connect(self.database_name)
-        self.cursor = self.database_connection.cursor()
         self.session = httpx.Client()
-
-    def _get_home_page(self):
-        return self.session.get(self.home_page_url)
-
-    def start_scraping_test(self):
-        html = open("search_page.html").read()
-        self.get_movie_list_node(html)
-        for movie_node in self.movie_list_node.iter():
-            self.movie_list.append(SearchResult(movie_node, 0))
-        self.dump_scrape_status()
+        self.database = Database(database_name)
 
     def start_scraping(self):
         self.start_time = datetime.now()
-        self._get_home_page()
+        logging.log(
+            logging.INFO,
+            f"starting scrape from page {self.start_page} to {self.end_page}",
+        )
         for page_num in range(self.start_page, self.end_page + 1):
             self.get_episode(page_num)
         self.dump_scrape_status()
@@ -74,7 +52,9 @@ class Scraper:
             current_page_content = self.session.get(current_page_url)
             self.get_movie_list_node(current_page_content.content)
             for movie_node in self.movie_list_node.iter():
-                self.movie_list.append(SearchResult(movie_node, self.current_page))
+                self.movie_list.append(
+                    SearchResult(movie_node, self.current_page).to_tuple()
+                )
             self.processed_pages += 1
         except Exception as e:
             logging.error("Encountered exception ", e)
@@ -86,14 +66,13 @@ class Scraper:
             exit(1)
 
     def dump_scrape_status(self):
-        for movie in self.movie_list:
-            self.movie_list_tuple.append(movie.to_tuple())
         if self.search_type == SearchType.MOVIE:
-            self.cursor.executemany(self.movie_insert_query, self.movie_list_tuple)
+            self.database.insert_new_movies(self.movie_list)
         else:
-            self.cursor.executemany(self.series_insert_query, self.movie_list_tuple)
-        self.database_connection.commit()
-        self.database_connection.close()
+            self.database.insert_new_series(self.movie_list)
+
+        self.database.close()
+
         with open("num_pages_scraped.txt", "w") as f:
             f.write(str(self.current_page))
         logging.log(
@@ -101,7 +80,6 @@ class Scraper:
             f"scraped {len(self.movie_list)} movies from {self.processed_pages} pages in "
             + f"{datetime.now() - self.start_time}",
         )
-        logging.log(logging.INFO, f"Dumped movie info to '{self.database_name}'")
 
     def get_movie_list_node(self, html: str | bytes) -> Node:
         tree = HTMLParser(html)
@@ -115,7 +93,8 @@ def main():
         format="%(levelname)s [%(asctime)s] %(name)s - %(message)s",
         level=logging.INFO,
     )
-    scraper = Scraper("test_series.db", SearchType.SERIES, 1, 2)
+
+    scraper = Scraper("test.db", SearchType.SERIES, 6, 6)
     scraper.start_scraping()
 
 

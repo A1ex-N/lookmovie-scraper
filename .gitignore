@@ -7,3 +7,4 @@ scrape.log
 search_page_files/
 test_movies.db
 test_series.db
+test.db
