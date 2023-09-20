@@ -63,6 +63,3 @@ class SearchResult:
         except AttributeError:
             return None
 
-
-def to_timezone(dt: datetime):
-    return calendar.timegm(dt.utctimetuple())
