@@ -3,8 +3,6 @@ This repo already contains complete database files in the /database folder, but 
 you can run it by doing `python scraper.py` or if you wanted to use it in your own code do it like so
 
 initialize Scraper with the `database_name`, `search_type`, `start_page` and `end_page` (inclusive)
-Note you have to manually create the db file. I do that by running `sqlite3 -init movies_schema.sql` then typing 
-`.save movies.db` followed by `quit`
 ```python
 def main():
     scraper = Scraper(database_name="movies.db", search_type=SearchType.MOVIE, start_page=201, end_page=300)
