@@ -1,11 +1,13 @@
 import logging
-import httpx
-
-from search_result import SearchResult
-from selectolax.parser import HTMLParser, Node
+import sys
 from datetime import datetime
-from search_types import SearchType
+
+import httpx
+from selectolax.parser import HTMLParser, Node
+
 from database import Database
+from search_result import SearchResult
+from search_types import SearchType
 
 
 class Scraper:
@@ -20,7 +22,7 @@ class Scraper:
     processed_pages: int = 0
     movie_list_node: Node
     search_type: SearchType
-    movie_list: list[tuple[SearchResult]] = []
+    results: list[tuple[SearchResult]] = []
     database: Database
 
     def __init__(
@@ -53,8 +55,8 @@ class Scraper:
             current_page_content = self.session.get(current_page_url)
             self.get_movie_list_node(current_page_content.content)
             for movie_node in self.movie_list_node.iter():
-                self.movie_list.append(
-                    SearchResult(movie_node, self.current_page).to_tuple()
+                self.results.append(
+                    SearchResult(movie_node, self.current_page).to_tuple() # type: ignore
                 )
             self.processed_pages += 1
         except Exception as e:
@@ -63,13 +65,13 @@ class Scraper:
                 "Dumping scraped information to %s and exiting", self.database_name
             )
             self.dump_scrape_status()
-            exit(1)
+            sys.exit(1)
 
     def dump_scrape_status(self):
         if self.search_type == SearchType.MOVIE:
-            self.database.insert_new_movies(self.movie_list)
+            self.database.insert_new_movies(self.results)
         else:
-            self.database.insert_new_series(self.movie_list)
+            self.database.insert_new_series(self.results)
 
         self.database.close()
 
@@ -77,9 +79,9 @@ class Scraper:
             f.write(str(self.current_page))
         logging.info(
             "scraped %d movies from %d pages in %s",
-            len(self.movie_list),
+            len(self.results),
             self.processed_pages,
-            datetime.now() - self.start_time,
+            datetime.now() - self.start_time, # type: ignore
         )
 
     def get_movie_list_node(self, html: str | bytes) -> Node:
