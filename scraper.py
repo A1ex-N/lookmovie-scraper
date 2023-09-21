@@ -56,7 +56,7 @@ class Scraper:
             self.get_movie_list_node(current_page_content.content)
             for movie_node in self.movie_list_node.iter():
                 self.results.append(
-                    SearchResult(movie_node, self.current_page).to_tuple() # type: ignore
+                    SearchResult(movie_node, self.current_page).to_tuple()  # type: ignore
                 )
             self.processed_pages += 1
         except Exception as e:
@@ -81,7 +81,7 @@ class Scraper:
             "scraped %d movies from %d pages in %s",
             len(self.results),
             self.processed_pages,
-            datetime.now() - self.start_time, # type: ignore
+            datetime.now() - self.start_time,  # type: ignore
         )
 
     def get_movie_list_node(self, html: str | bytes) -> Node:

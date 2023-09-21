@@ -61,4 +61,3 @@ class SearchResult:
             return node.css_first(".hvr-inner a").attributes["href"]
         except AttributeError:
             return None
-
