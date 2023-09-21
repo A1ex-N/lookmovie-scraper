@@ -36,7 +36,9 @@ class Scraper:
     def start_scraping(self):
         self.start_time = datetime.now()
         logging.info(
-            f"starting scrape from page {self.start_page} to {self.end_page}",
+            "starting scrape from page %d to %d",
+            self.start_page,
+            self.end_page,
         )
         for page_num in range(self.start_page, self.end_page + 1):
             self.get_episode(page_num)
@@ -56,9 +58,9 @@ class Scraper:
                 )
             self.processed_pages += 1
         except Exception as e:
-            logging.error("Encountered exception ", e)
+            logging.error("Encountered exception %s", e)
             logging.info(
-                f"Dumping scraped information to {self.database_name} and exiting",
+                "Dumping scraped information to %s and exiting", self.database_name
             )
             self.dump_scrape_status()
             exit(1)
@@ -74,8 +76,10 @@ class Scraper:
         with open("num_pages_scraped.txt", "w") as f:
             f.write(str(self.current_page))
         logging.info(
-            f"scraped {len(self.movie_list)} movies from {self.processed_pages} pages in "
-            + f"{datetime.now() - self.start_time}",
+            "scraped %d movies from %d pages in %s",
+            len(self.movie_list),
+            self.processed_pages,
+            datetime.now() - self.start_time,
         )
 
     def get_movie_list_node(self, html: str | bytes) -> Node:
@@ -91,7 +95,7 @@ def main():
         level=logging.INFO,
     )
 
-    scraper = Scraper("test.db", SearchType.MOVIE, 1, 1)
+    scraper = Scraper("test.db", SearchType.MOVIE, 1, 3)
     scraper.start_scraping()
 
 

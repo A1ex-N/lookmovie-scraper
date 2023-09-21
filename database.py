@@ -36,21 +36,21 @@ class Database:
             self.create_tables()
 
     def create_tables(self):
-        logging.info(f"creating tables in {self.database_path}")
+        logging.info("creating tables in %s", self.database_path)
         self.cursor.execute(CreationQueries.series.value)
         self.cursor.execute(CreationQueries.movies.value)
         self.connection.commit()
 
     def insert_new_movies(self, search_results: list[tuple[SearchResult]]):
-        logging.info(f"inserting movies into {self.database_path}")
+        logging.info("inserting movies into %s", self.database_path)
         self.cursor.executemany(InsertionQueries.movies.value, search_results)
         self.connection.commit()
 
     def insert_new_series(self, search_results: list[tuple[SearchResult]]):
-        logging.info(f"inserting series into {self.database_path}")
+        logging.info("inserting series into %s", self.database_path)
         self.cursor.executemany(InsertionQueries.series.value, search_results)
         self.connection.commit()
 
     def close(self):
-        logging.info(f"closing {self.database_path}")
+        logging.info("closing %s", self.database_path)
         self.connection.close()
