@@ -1,21 +1,22 @@
-from search_result import SearchResult
-import logging
-import sqlite3
 import enum
+import logging
 import os
+import sqlite3
+
+from search_result import SearchResult
 
 
 class CreationQueries(enum.Enum):
-    movies = "CREATE TABLE movies (title, year, rating, poster_url, page_url, search_page_num)"
-    series = "CREATE TABLE tv_series (title, year, rating, poster_url, page_url, search_page_num)"
+    MOVIES = "CREATE TABLE movies (title, year, rating, poster_url, page_url, search_page_num)"
+    SERIES = "CREATE TABLE tv_series (title, year, rating, poster_url, page_url, search_page_num)"
 
 
 class InsertionQueries(enum.Enum):
-    movies = """
+    MOVIES = """
         INSERT INTO movies (title, year, rating, poster_url, page_url, search_page_num) VALUES 
         (?, ?, ?, ?, ?, ?)
         """
-    series = """
+    SERIES = """
         INSERT INTO tv_series (title, year, rating, poster_url, page_url, search_page_num) VALUES 
         (?, ?, ?, ?, ?, ?)
         """
@@ -37,18 +38,18 @@ class Database:
 
     def create_tables(self):
         logging.info("creating tables in %s", self.database_path)
-        self.cursor.execute(CreationQueries.series.value)
-        self.cursor.execute(CreationQueries.movies.value)
+        self.cursor.execute(CreationQueries.SERIES.value)
+        self.cursor.execute(CreationQueries.MOVIES.value)
         self.connection.commit()
 
     def insert_new_movies(self, search_results: list[tuple[SearchResult]]):
         logging.info("inserting movies into %s", self.database_path)
-        self.cursor.executemany(InsertionQueries.movies.value, search_results)
+        self.cursor.executemany(InsertionQueries.MOVIES.value, search_results)
         self.connection.commit()
 
     def insert_new_series(self, search_results: list[tuple[SearchResult]]):
         logging.info("inserting series into %s", self.database_path)
-        self.cursor.executemany(InsertionQueries.series.value, search_results)
+        self.cursor.executemany(InsertionQueries.SERIES.value, search_results)
         self.connection.commit()
 
     def close(self):
