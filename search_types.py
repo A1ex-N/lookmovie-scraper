@@ -1,6 +1,10 @@
-from enum import Enum
+import enum
 
 
-class SearchType(Enum):
+class SearchType(enum.Enum):
+    """
+    enum representing a search type
+    """
+
     MOVIE = "movies"
     SERIES = "shows"
