@@ -16,25 +16,32 @@ class Scraper:
     """
 
     base_search_url: str = (
-        "https://www.lookmovie2.to/{search_type}/search/page/{page}?q="
+        "https://www.lookmovie2.to/{search_type}/search/page/{page}?q={search_query}"
     )
     session: httpx.Client
     start_page: int = 1
     end_page: int = 0  # 2564
     start_time = datetime
     processed_pages: int = 0
+    search_query: str
     search_type: SearchType
     results: list[tuple[SearchResult]] = []
     database: Database
 
     def __init__(
-        self, database_name, search_type: SearchType, start_page=1, end_page=0
+        self,
+        database_name,
+        search_type: SearchType,
+        search_query: str = "",
+        start_page=1,
+        end_page=0,
     ):
         self.start_page = start_page
         self.end_page = end_page
         self.search_type = search_type
         self.database_name = database_name
         self.session = httpx.Client()
+        self.search_query = search_query
         self.database = Database(database_name)
 
     def start_scraping(self):
@@ -64,7 +71,9 @@ class Scraper:
         :param page_num: the page to scrape
         """
         current_page_url = self.base_search_url.format(
-            search_type=self.search_type.value, page=page_num
+            search_type=self.search_type.value,
+            search_query=self.search_query,
+            page=page_num,
         )
         current_page_content = self.session.get(current_page_url)
         if current_page_content.status_code != 200:
@@ -78,7 +87,7 @@ class Scraper:
         movie_list_node = self.get_movie_list_node(current_page_content.content)
         for movie_node in movie_list_node.iter():
             self.results.append(
-                SearchResult(movie_node, page_num).to_tuple()  # type: ignore
+                SearchResult(movie_node, page_num, self.search_query).to_tuple()  # type: ignore
             )
         self.processed_pages += 1
 
@@ -120,7 +129,7 @@ def main():
         level=logging.INFO,
     )
 
-    scraper = Scraper("test.db", SearchType.MOVIE, 1, 3)
+    scraper = Scraper("test2.db", SearchType.MOVIE, search_query="blade", start_page=1, end_page=2)
     scraper.start_scraping()
 
 

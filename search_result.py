@@ -15,18 +15,20 @@ class SearchResult:
     poster_url: str | None
     page_url: str | None
     search_page_num: int
+    search_query: str
 
-    def __init__(self, node: Node, search_page_num: int):
+    def __init__(self, node: Node, search_page_num: int, search_query: str):
         self.title = self.get_title(node)
         self.page_url = self.get_page_link(node)
         self.rating = self.get_rating(node)
         self.poster_url = self.get_image_link(node)
         self.year = self.get_year(node)
         self.search_page_num = search_page_num
+        self.search_query = search_query
 
     def to_tuple(
         self,
-    ) -> tuple[str, str | None, str | None, str | None, str | None, int]:
+    ) -> tuple[str, str | None, str | None, str | None, str | None, int, str]:
         """
         Returns self represented as a tuple in order to be used in
         sqlite3's executemany() function
@@ -40,6 +42,7 @@ class SearchResult:
             self.poster_url,
             self.page_url,
             self.search_page_num,
+            self.search_query,
         )
 
     @staticmethod
