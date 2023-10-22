@@ -6,35 +6,24 @@ import sqlite3
 from search_result import SearchResult
 
 
+def generate_sql_table(table_name: str) -> str:
+      return f"""CREATE TABLE IF NOT EXISTS {table_name} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title VARCHAR(255) NOT NULL,
+            year INT,
+            rating INT,
+            poster_url VARCHAR(255),
+            page_url VARCHAR(255),
+            search_page_num INT,
+            search_query VARCHAR(255),
+            scraped_at_utc DATETIME DEFAULT CURRENT_TIMESTAMP
+        )"""
+
+
 class CreationQueries(enum.Enum):
     """enum containing SQL queries for creating tables in a db"""
-
-    MOVIES = """
-        CREATE TABLE IF NOT EXISTS movies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title VARCHAR(255) NOT NULL,
-            year INT,
-            rating INT,
-            poster_url VARCHAR(255),
-            page_url VARCHAR(255),
-            search_page_num INT,
-            search_query VARCHAR(255),
-            scraped_at_utc DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """
-    SERIES = """
-        CREATE TABLE IF NOT EXISTS tv_series (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title VARCHAR(255) NOT NULL,
-            year INT,
-            rating INT,
-            poster_url VARCHAR(255),
-            page_url VARCHAR(255),
-            search_page_num INT,
-            search_query VARCHAR(255),
-            scraped_at_utc DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """
+    MOVIES = generate_sql_table("movies")
+    SERIES = generate_sql_table("tv_series")
 
 
 class InsertionQueries(enum.Enum):
