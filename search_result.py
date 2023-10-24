@@ -9,11 +9,12 @@ class SearchResult:
     A class that represents a title (movie/show)
     """
 
+    slug: str
     title: str
     year: str | None
     rating: str | None
     poster_url: str | None
-    page_url: str | None
+    page_url: str 
     search_page_num: int
     search_query: str
 
@@ -25,10 +26,11 @@ class SearchResult:
         self.year = self.get_year(node)
         self.search_page_num = search_page_num
         self.search_query = search_query
+        self.slug = self.page_url.split('/')[-1]
 
     def to_tuple(
         self,
-    ) -> tuple[str, str | None, str | None, str | None, str | None, int, str]:
+    ) -> tuple[str, str, str | None, str | None, str | None, str | None, int, str]:
         """
         Returns self represented as a tuple in order to be used in
         sqlite3's executemany() function
@@ -36,6 +38,7 @@ class SearchResult:
         :return: a tuple of self
         """
         return (
+            self.slug,
             self.title,
             self.year,
             self.rating,
@@ -75,9 +78,7 @@ class SearchResult:
             return None
 
     @staticmethod
-    def get_page_link(node: Node) -> str | None:
+    def get_page_link(node: Node) -> str:
         """gets the page link for a search result"""
-        try:
-            return node.css_first(".hvr-inner a").attributes["href"]
-        except AttributeError:
-            return None
+        # pretty sure this can never be None
+        return node.css_first(".hvr-inner a").attributes["href"]
