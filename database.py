@@ -8,15 +8,15 @@ from search_result import SearchResult
 
 def generate_sql_table(table_name: str) -> str:
       return f"""CREATE TABLE IF NOT EXISTS {table_name} (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug TEXT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             year INT,
             rating INT,
             poster_url VARCHAR(255),
             page_url VARCHAR(255),
             search_page_num INT,
-            search_query VARCHAR(255),
-            scraped_at_utc DATETIME DEFAULT CURRENT_TIMESTAMP
+            scraped_at_utc DATETIME DEFAULT CURRENT_TIMESTAMP,
+            search_query VARCHAR(255)
         )"""
 
 
@@ -30,12 +30,14 @@ class InsertionQueries(enum.Enum):
     """enum containing SQL queries for inserting to a db"""
 
     MOVIES = """
-        INSERT INTO movies (title, year, rating, poster_url, page_url, search_page_num, search_query) VALUES 
-        (?, ?, ?, ?, ?, ?, ?)
+        INSERT OR IGNORE INTO movies 
+        (slug, title, year, rating, poster_url, page_url, search_page_num, search_query) VALUES 
+        (?, ?, ?, ?, ?, ?, ?, ?)
         """
     SERIES = """
-        INSERT INTO tv_series (title, year, rating, poster_url, page_url, search_page_num, search_query) VALUES 
-        (?, ?, ?, ?, ?, ?, ?)
+        INSERT OR IGNORE INTO tv_series 
+        (slug, title, year, rating, poster_url, page_url, search_page_num, search_query) VALUES 
+        (?, ?, ?, ?, ?, ?, ?, ?)
         """
 
 
