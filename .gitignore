@@ -10,3 +10,4 @@ test_series.db
 test.db
 scraped_data.db.bak
 test2.db
+database/scraped_data.db.bak2
