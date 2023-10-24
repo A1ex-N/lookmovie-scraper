@@ -1,6 +1,7 @@
 import logging
 import sys
 from datetime import datetime
+from typing import Optional
 
 import httpx
 from selectolax.parser import HTMLParser, Node
@@ -85,6 +86,9 @@ class Scraper:
             sys.exit(1)
 
         movie_list_node = self.get_movie_list_node(current_page_content.content)
+        if movie_list_node is None:
+            logging.error("Cannot get movie list node")
+            exit(1)
         for movie_node in movie_list_node.iter():
             self.results.append(
                 SearchResult(movie_node, page_num, self.search_query).to_tuple()  # type: ignore
@@ -110,7 +114,7 @@ class Scraper:
         )
 
     @staticmethod
-    def get_movie_list_node(html: str | bytes) -> Node:
+    def get_movie_list_node(html: str | bytes) -> Optional[Node]:
         """
         Gets the movie list Node (HTML element containing each title (movie/show))
 
@@ -129,7 +133,8 @@ def main():
         level=logging.INFO,
     )
 
-    scraper = Scraper("test2.db", SearchType.MOVIE, search_query="blade", start_page=1, end_page=2)
+    scraper = Scraper(
+        "test.db", SearchType.MOVIE, start_page=1, end_page=1)
     scraper.start_scraping()
 
 
