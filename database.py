@@ -7,7 +7,7 @@ from search_result import SearchResult
 
 
 def generate_sql_table(table_name: str) -> str:
-      return f"""CREATE TABLE IF NOT EXISTS {table_name} (
+    return f"""CREATE TABLE IF NOT EXISTS {table_name} (
             slug TEXT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             year INT,
@@ -22,6 +22,7 @@ def generate_sql_table(table_name: str) -> str:
 
 class CreationQueries(enum.Enum):
     """enum containing SQL queries for creating tables in a db"""
+
     MOVIES = generate_sql_table("movies")
     SERIES = generate_sql_table("tv_series")
 

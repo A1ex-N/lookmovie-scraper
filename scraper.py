@@ -133,8 +133,7 @@ def main():
         level=logging.INFO,
     )
 
-    scraper = Scraper(
-        "test.db", SearchType.MOVIE, start_page=1, end_page=1)
+    scraper = Scraper("test.db", SearchType.MOVIE, start_page=1, end_page=1)
     scraper.start_scraping()
 
 

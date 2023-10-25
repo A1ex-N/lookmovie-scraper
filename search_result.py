@@ -14,7 +14,7 @@ class SearchResult:
     year: str | None
     rating: str | None
     poster_url: str | None
-    page_url: str 
+    page_url: str
     search_page_num: int
     search_query: str
 
@@ -26,7 +26,7 @@ class SearchResult:
         self.year = self.get_year(node)
         self.search_page_num = search_page_num
         self.search_query = search_query
-        self.slug = self.page_url.split('/')[-1]
+        self.slug = self.page_url.split("/")[-1]
 
     def to_tuple(
         self,

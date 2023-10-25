@@ -6,7 +6,6 @@ forward slash. Any duplicate data (page_url) gets removed too.
 """
 
 
-
 import sqlite3
 
 
@@ -38,7 +37,7 @@ def generate_insert_sql(table_name: str) -> str:
 def update_all(items):
     for item in items:
         updated = list(item)
-        updated[0] = updated[5].split('/')[-1]
+        updated[0] = updated[5].split("/")[-1]
         yield tuple(updated)
 
 
@@ -62,7 +61,7 @@ if __name__ == "__main__":
 
     connection = sqlite3.connect(DATABASE_PATH)
     cursor = connection.cursor()
-    
+
     res = cursor.execute(f"SELECT * FROM {original_table}")
     all = res.fetchall()
 
