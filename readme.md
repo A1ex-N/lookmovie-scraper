@@ -1,3 +1,5 @@
+This scraper doesn't really have any practical use cases. I made it for fun & learning
+
 This repo already contains complete database files in the /database folder, but if you want to run the code yourself continue reading 
 
 you can run it by doing `python scraper.py` or if you wanted to use it in your own code do it like so
