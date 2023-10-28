@@ -20,6 +20,14 @@ def generate_sql_table(table_name: str) -> str:
         )"""
 
 
+def generate_insertion_query(table_name: str):
+    return f"""
+        INSERT OR IGNORE INTO {table_name}
+        (slug, title, year, rating, poster_url, page_url, search_page_num, search_query)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """
+
+
 class CreationQueries(enum.Enum):
     """enum containing SQL queries for creating tables in a db"""
 
@@ -30,16 +38,8 @@ class CreationQueries(enum.Enum):
 class InsertionQueries(enum.Enum):
     """enum containing SQL queries for inserting to a db"""
 
-    MOVIES = """
-        INSERT OR IGNORE INTO movies 
-        (slug, title, year, rating, poster_url, page_url, search_page_num, search_query) VALUES 
-        (?, ?, ?, ?, ?, ?, ?, ?)
-        """
-    SERIES = """
-        INSERT OR IGNORE INTO tv_series 
-        (slug, title, year, rating, poster_url, page_url, search_page_num, search_query) VALUES 
-        (?, ?, ?, ?, ?, ?, ?, ?)
-        """
+    MOVIES = generate_insertion_query("movies")
+    SERIES = generate_insertion_query("tv_series")
 
 
 class Database:
