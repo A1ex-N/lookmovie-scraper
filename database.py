@@ -1,9 +1,10 @@
-import enum
+from enum import Enum
 import logging
 import os
 import sqlite3
 
 from search_result import SearchResult
+from search_types import SearchType
 
 
 def generate_sql_table(table_name: str) -> str:
@@ -28,14 +29,14 @@ def generate_insertion_query(table_name: str):
         """
 
 
-class CreationQueries(enum.Enum):
+class CreationQueries(Enum):
     """enum containing SQL queries for creating tables in a db"""
 
     MOVIES = generate_sql_table("movies")
     SERIES = generate_sql_table("tv_series")
 
 
-class InsertionQueries(enum.Enum):
+class InsertionQueries(Enum):
     """enum containing SQL queries for inserting to a db"""
 
     MOVIES = generate_insertion_query("movies")
@@ -58,26 +59,23 @@ class Database:
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
 
-    def insert_new_movies(self, search_results: list[tuple[SearchResult]]):
+    def insert_search_results(
+        self, search_results: list[tuple[SearchResult]], table_type: SearchType
+    ):
         """
-        Inserts movies into movies table
+        Inserts search results into table
 
         :param search_results: List of tuples of SearchResults
         """
-        logging.info("inserting movies into %s", self.database_path)
-        self.cursor.execute(CreationQueries.MOVIES.value)
-        self.cursor.executemany(InsertionQueries.MOVIES.value, search_results)
-        self.connection.commit()
-
-    def insert_new_series(self, search_results: list[tuple[SearchResult]]):
-        """
-        Inserts series into tv_series table
-
-        :param search_results: List of tuples of SearchResults
-        """
-        logging.info("inserting series into %s", self.database_path)
-        self.cursor.execute(CreationQueries.MOVIES.value)
-        self.cursor.executemany(InsertionQueries.SERIES.value, search_results)
+        logging.info("inserting %s into %s", table_type.value, self.database_path)
+        # There's no particular reason the default is series
+        creation_query = CreationQueries.SERIES.value
+        insertion_query = InsertionQueries.SERIES.value
+        if table_type == SearchType.MOVIE:
+            creation_query = CreationQueries.MOVIES.value
+            insertion_query = InsertionQueries.MOVIES.value
+        self.cursor.execute(creation_query)
+        self.cursor.executemany(insertion_query, search_results)
         self.connection.commit()
 
     def close(self):

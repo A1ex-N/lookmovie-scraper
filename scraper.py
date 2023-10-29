@@ -99,16 +99,13 @@ class Scraper:
         """
         dumps all scraped titles (movies/shows) to the database
         """
-        if self.search_type == SearchType.MOVIE:
-            self.database.insert_new_movies(self.results)
-        else:
-            self.database.insert_new_series(self.results)
-
+        self.database.insert_search_results(self.results, self.search_type)
         self.database.close()
 
         logging.info(
-            "scraped %d movies from %d pages in %s",
+            "scraped %d %s from %d pages in %s",
             len(self.results),
+            self.search_type.value,
             self.processed_pages,
             datetime.now() - self.start_time,  # type: ignore
         )
@@ -133,7 +130,7 @@ def main():
         level=logging.INFO,
     )
 
-    scraper = Scraper("test.db", SearchType.MOVIE, start_page=1, end_page=1)
+    scraper = Scraper("test.db", SearchType.SERIES, start_page=2, end_page=2)
     scraper.start_scraping()
 
 
