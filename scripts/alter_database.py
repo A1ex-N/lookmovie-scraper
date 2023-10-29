@@ -2,7 +2,7 @@
 the original db schema i went with used an autoincrementing int as the primary key,
 but i decided i no longer wanted it like that. This script replaces 'id' with 
 a primary text key named 'slug', which is just the 'page_url' with everything before the last 
-forward slash. Any duplicate data (page_url) gets removed too.
+forward slash removed. Duplicate data (anything with duplicate page_url) gets removed too.
 """
 
 
