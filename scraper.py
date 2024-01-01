@@ -57,10 +57,10 @@ class Scraper:
             self.end_page,
         )
         for page_num in range(self.start_page, self.end_page + 1):
-            self.get_episode(page_num)
+            self.get_title_info(page_num)
         self.dump_scrape_status()
 
-    def get_episode(self, page_num: int):
+    def get_title_info(self, page_num: int):
         """
         Gets all the information for each title (movie/show) on page_num
         and appends them to self.results.
