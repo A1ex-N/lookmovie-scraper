@@ -16,7 +16,7 @@ def generate_sql_table(table_name: str) -> str:
             poster_url VARCHAR(255),
             page_url VARCHAR(255),
             search_page_num INT,
-            scraped_at_utc DATETIME DEFAULT CURRENT_TIMESTAMP,
+            scraped_at_utc DATETIME,
             search_query VARCHAR(255)
         )"""
 
@@ -24,8 +24,8 @@ def generate_sql_table(table_name: str) -> str:
 def generate_insertion_query(table_name: str):
     return f"""
         INSERT OR IGNORE INTO {table_name}
-        (slug, title, year, rating, poster_url, page_url, search_page_num, search_query)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        (slug, title, year, rating, poster_url, page_url, search_page_num, scraped_at_utc, search_query)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
 

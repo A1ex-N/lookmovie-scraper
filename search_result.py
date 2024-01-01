@@ -1,4 +1,5 @@
 import dataclasses
+from datetime import datetime
 
 from selectolax.parser import Node
 
@@ -27,10 +28,11 @@ class SearchResult:
         self.search_page_num = search_page_num
         self.search_query = search_query
         self.slug = self.page_url.split("/")[-1]
+        self.scraped_at = self.utc_str()
 
     def to_tuple(
         self,
-    ) -> tuple[str, str, str | None, str | None, str | None, str | None, int, str]:
+    ) -> tuple[str, str, str | None, str | None, str | None, str | None, int, str, str]:
         """
         Returns self represented as a tuple in order to be used in
         sqlite3's executemany() function
@@ -45,6 +47,7 @@ class SearchResult:
             self.poster_url,
             self.page_url,
             self.search_page_num,
+            self.scraped_at,
             self.search_query,
         )
 
@@ -82,3 +85,7 @@ class SearchResult:
         """gets the page link for a search result"""
         # pretty sure this can never be None
         return node.css_first(".hvr-inner a").attributes["href"]
+
+    @staticmethod
+    def utc_str():
+        return datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')

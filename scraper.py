@@ -130,7 +130,8 @@ def main():
         level=logging.INFO,
     )
 
-    scraper = Scraper("test.db", SearchType.SERIES, start_page=2, end_page=2)
+    #scraper = Scraper("database/scraped_data.db", SearchType.MOVIE, start_page=1, end_page=124)
+    scraper = Scraper("test.db", SearchType.MOVIE, start_page=1, end_page=2)
     scraper.start_scraping()
 
 
